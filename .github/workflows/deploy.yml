@@ -19,7 +19,7 @@ on:
 jobs:
   openshift-ci-cd:
     name: Build and deploy to OpenShift
-    runs-on: uae-gitrunner-ocplab
+    runs-on: ocplab
 
     steps: 
     - uses: actions/checkout@v1
