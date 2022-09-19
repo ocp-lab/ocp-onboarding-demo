@@ -1,0 +1,2 @@
+/api/40k 
+file:./40-k.json

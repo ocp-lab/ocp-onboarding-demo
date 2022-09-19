@@ -1,0 +1,2 @@
+/api/5k 
+file:./5-k.json
