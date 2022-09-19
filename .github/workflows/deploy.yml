@@ -1,0 +1,84 @@
+name: OpenShift Build And Deploy
+env:
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_NAMESPACE: "test-runner"
+  REGISTRY: ghcr.io
+  REPOSITORY_NAME: ${{ github.repository }}
+  IMAGE_NAME: mocf-api #Sample image name
+  DOCKER_TAG: 10g #Sample image tag
+  DOCKER_SECRET: ${{ secrets.GITHUB_TOKEN }}
+  DOCKER_USER: ${{ github.actor }}
+  
+on:
+  # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
+  push:
+    # Edit to the branch(es) you want to build and deploy on each push.
+    branches: [ main ]
+
+jobs:
+  openshift-ci-cd:
+    name: Build and deploy to OpenShift
+    runs-on: np-ocp
+
+    steps: 
+    - uses: actions/checkout@v1
+    
+    - name: Log in to OpenShift
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+        openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+        insecure_skip_tls_verify: true
+        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+ 
+    ############# Use buildah to build container
+    - name: Buildah Action
+      id: build-image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ env.IMAGE_NAME }}
+        tags: ${{ env.DOCKER_TAG }}
+        containerfiles: |
+          ./Dockerfile
+
+    - name: Push to GitHub Container Repository
+      id: push-to-docker-io
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ env.IMAGE_NAME }}
+        tags: ${{ env.DOCKER_TAG }}
+        registry: ${{ env.REGISTRY }}/${{ env.REPOSITORY_NAME }}
+        username: ${{ env.DOCKER_USER }} 
+        password: ${{ env.DOCKER_SECRET }} 
+            
+    - name: Unlink secret if it exists
+      run: |
+        oc secrets unlink default ghcr-secret  
+      continue-on-error: true
+      
+    - name: Delete secret if it exists
+      run: |
+        oc delete secrets ghcr-secret  
+      continue-on-error: true
+
+    - name: Create secret for pulling image
+      run: |
+        oc create secret docker-registry ghcr-secret --docker-server=ghcr.io --docker-username=${{ env.DOCKER_USER }} -n ${{ env.OPENSHIFT_NAMESPACE }} --docker-password=${{ env.DOCKER_SECRET }}  
+      
+    - name: Link secret to default service account
+      run: |
+        oc secrets link default ghcr-secret --for=pull -n ${{ env.OPENSHIFT_NAMESPACE }}
+    - name: Delete svc if it exists
+      run: |
+        oc delete svc ${{ env.IMAGE_NAME }}  
+      continue-on-error: true
+      
+    - name: Delete deploy if it exists
+      run: |
+        oc delete deploy ${{ env.IMAGE_NAME }}  
+      continue-on-error: true
+
+    - name: Create and expose app
+      run: |
+        oc new-app --name=${{ env.IMAGE_NAME }} --allow-missing-images --docker-image=${{ env.REGISTRY }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:${{ env.DOCKER_TAG }} -n ${{ env.OPENSHIFT_NAMESPACE }}
