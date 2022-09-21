@@ -19,7 +19,7 @@ on:
 jobs:
   openshift-ci-cd:
     name: Build and deploy to OpenShift
-    runs-on: OCPLABDEMO
+    runs-on: [self-hosted]
 
     steps: 
     - uses: actions/checkout@v1
