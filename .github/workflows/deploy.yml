@@ -3,16 +3,12 @@ env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   OPENSHIFT_NAMESPACE: "test-runner"
-  REGISTRY: ghcr.io
-  REPOSITORY_NAME: ${{ github.repository }}
-  IMAGE_NAME: mocf-api #Sample image name
-  
   IMAGE_REGISTRY: docker.io/sunnysudershan
   IMAGE_REGISTRY_USER: sunnysudershan
   IMAGE_REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-  DOCKER_TAG: 10g #Sample image tag
+  IMAGE_TAGS: ""
+  IMAGE_NAME: mocf-api #Sample image name
 
-  
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
   push:
