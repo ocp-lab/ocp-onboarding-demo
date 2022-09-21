@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: mocf-api #Sample image name
   DOCKER_TAG: 10g #Sample image tag
   DOCKER_SECRET: ${{ secrets.GITHUB_TOKEN }}
-  DOCKER_USER: ${{ github.actor }}
+  DOCKER_USER: sunnysudershan
   
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
