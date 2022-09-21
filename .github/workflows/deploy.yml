@@ -7,7 +7,7 @@ env:
   REPOSITORY_NAME: ${{ github.repository }}
   IMAGE_NAME: mocf-api #Sample image name
   DOCKER_TAG: 10g #Sample image tag
-  DOCKER_SECRET: ${{ secrets.GITHUB_TOKEN }}
+  DOCKER_SECRET: ${{ secrets.DOCKER_SECRET }}
   DOCKER_USER: sunnysudershan
   
 on:
