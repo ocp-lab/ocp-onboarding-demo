@@ -7,7 +7,7 @@ env:
   IMAGE_REGISTRY_USER: sunnysudershan
   IMAGE_REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   IMAGE_TAGS: ""
-  IMAGE_NAME: mocf-api #Sample image name
+ 
 
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
